@@ -33,7 +33,7 @@ class Server extends Actor with HttpService {
 
   def updateContent(path: String, value: String): String = {
     content(path) = value
-    ""
+    value
   }
 
   def deleteContent(path: String): String = content.remove(path) match {
