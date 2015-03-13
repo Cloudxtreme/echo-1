@@ -3,6 +3,7 @@ package io.vamp.echo
 import akka.actor.Actor
 import spray.http.CacheDirectives.`no-store`
 import spray.http.HttpHeaders.{RawHeader, `Cache-Control`}
+import spray.http.MediaTypes._
 import spray.http.StatusCodes._
 import spray.routing.HttpService
 
@@ -10,16 +11,18 @@ class Server extends Actor with HttpService {
   def actorRefFactory = context
 
   def receive = runRoute(respondWithHeaders(`Cache-Control`(`no-store`), RawHeader("Pragma", "no-cache")) {
-    path(Rest) { path: String =>
-      get {
-        complete(OK, getContent(path))
-      } ~ (post | put) {
-        entity(as[String]) {
-          body =>
-            complete(OK, updateContent(path, body))
+    respondWithMediaType(`application/json`) {
+      path(Rest) { path: String =>
+        get {
+          complete(OK, getContent(path))
+        } ~ (post | put) {
+          entity(as[String]) {
+            body =>
+              complete(OK, updateContent(path, body))
+          }
+        } ~ delete {
+          complete(OK, deleteContent(path))
         }
-      } ~ delete {
-        complete(OK, deleteContent(path))
       }
     }
   })
